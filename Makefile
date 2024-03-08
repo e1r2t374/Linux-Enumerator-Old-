@@ -1,16 +1,16 @@
-all: main
+CC = gcc
 
-CC = clang
-override CFLAGS += -g -Wno-everything -pthread -lm
+DCFLAGS = -Wall -Wextra -Wpedantic -std=c99 -Wformat=2 -Wformat-overflow -Wformat-truncation -O2 -Wconversion -D_FORTIFY_SOURCE=2 -fstack-clash-protection -fstack-protector-strong -fstack-protector-all -Wdouble-promotion -pipe -D_FORTIFY_SOURCE=2 -fcf-protection -fpie -pedantic-errors -m64 -g3
 
-SRCS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.c' -print)
-HEADERS = $(shell find . -name '.ccls-cache' -type d -prune -o -type f -name '*.h' -print)
+CFLAGS= -O2 -std=c99 -m64 -pipe -fcf-protection -fstack-protector-strong -fstack-protector-all -s -fpic -shared -fpie -Wl,-pie -Wl,-z,now -Wl,-z,relro -Wl,-z,defs
 
-main: $(SRCS) $(HEADERS)
-	$(CC) $(CFLAGS) $(SRCS) -o "$@"
+.PHONY: default all clean
 
-main-debug: $(SRCS) $(HEADERS)
-	$(CC) $(CFLAGS) -O0 $(SRCS) -o "$@"
+enum: enum.o
+enum.o: enum.c
+	$(CC) $(CFLAGS) -c enum.c
 
 clean:
-	rm -f main main-debug
+	-rm -rf *.o *.s enum enum_debug
+debug: 
+	$(CC) $(DCFLAGS) enum.c -o enum_debug
